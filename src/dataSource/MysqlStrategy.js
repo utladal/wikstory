@@ -192,8 +192,38 @@ class MySQLStrategy extends DataSourceInterface {
 
         const [rows] = await this.pool.execute(query, [uri]);
 
+        console.log("first fetch");
+
         if (rows.length > 0){
-            for(let row in rows) rows[row].line_changes = JSON.parse(rows[row].line_changes);
+            // Parse line_changes for all rows
+            for(let row in rows) rows[row].line_changes = JSON.parse(rows[row].line_changes).changes;
+            
+            // Collect all unique blob hashes
+            const blobHashes = [];
+            const blobHashSet = new Set();
+            for(let row of rows) {
+                for(let lineChange of row.line_changes) {
+                    if (!blobHashSet.has(lineChange.hash)) {
+                        blobHashSet.add(lineChange.hash);
+                        blobHashes.push(lineChange.hash);
+                    }
+                }
+            }
+            console.log("collected blob hashes");
+
+
+            // Fetch all blobs in batch
+            const blobMap = await this.getBlobsBatch(blobHashes);
+    
+            console.log("second fetch");
+
+            // Assign line_text to each line_change
+            for(let row of rows) {
+                for(let lineChange of row.line_changes) {
+                    lineChange.line_text = blobMap[lineChange.hash].line_text;
+                }
+            }
+
             return rows;
         } else {
             throw new errors.ItemNotFoundError(`Could not find commit history for ${uri}.`);
@@ -214,6 +244,33 @@ class MySQLStrategy extends DataSourceInterface {
         } else {
             throw new errors.ItemNotFoundError("Could not find commit with provided hash.");
         }
+    }
+
+    async getBlobsBatch(blob_hashes){
+        if (!blob_hashes || blob_hashes.length === 0) {
+            return {};
+        }
+
+        // Create placeholders for the SQL query
+        const placeholders = blob_hashes.map(() => 'UNHEX(?)').join(',');
+        const query = `
+            SELECT HEX(blob_hash) AS blob_hash, line_text FROM blobs
+            WHERE blob_hash IN (${placeholders})
+        `;
+
+        const [rows] = await this.pool.execute(query, blob_hashes);
+
+        // Create a map and decompress all blobs
+        const blobMap = {};
+        for (const row of rows) {
+            const decompressed = await decompressString(row.line_text);
+            blobMap[row.blob_hash] = {
+                blob_hash: row.blob_hash,
+                line_text: decompressed
+            };
+        }
+
+        return blobMap;
     }
 }
 

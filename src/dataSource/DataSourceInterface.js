@@ -27,6 +27,10 @@ class DataSourceInterface {
 		throw new Error("Method 'getBlob()' must be implemented.");
 	}
 
+	async getBlobsBatch(blob_hashes) {
+		throw new Error("Method 'getBlobsBatch()' must be implemented.");
+	}
+
 	async deleteCommit(commitHash){
 		throw new Error("Method 'deleteCommit()' must be implemented.");
 	}
