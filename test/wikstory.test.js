@@ -37,10 +37,10 @@ let wikstory = null;
 describe("Instanciation of wikstory class", function () {
     it("Should create a new instance of wikstory using the test child class.", function () {
         wikstory = new SQLTestClass({
-            host: 'localhost',
-            user: 'webuser',
-            password: 'webuser',
-            database: 'wikstory',
+            host: '10.0.0.2',
+            user: 'devuser',
+            password: 'devuser',
+            database: 'wiki_dev',
             waitForConnections: true,
             connectionLimit: 20,
             queueLimit: 0
@@ -55,13 +55,20 @@ describe("Instanciation of wikstory class", function () {
 describe("Committing and fetching content", function () {
     it("Should create multiple commits using the test strings", async () => {
         await wikstory.commit("test", testString, "noc");
+        await wikstory.commit("test", changeString, "noc2");
     });
 
-    it("Should be able to return info using", async () => {
+    it("Should be able to return file and commit info", async () => {
         const res = await wikstory.getFileWithCommit('test');
 
-        assert.equal(res.author, 'noc');
-        assert.equal(res.file_text, testString);
+        assert.equal(res.author, 'noc2');
+        assert.equal(res.file_text, changeString);
+    });
+
+    it("should return accurate commit history", async () => {
+        const commitHistory = await wikstory.getCommitHistory('test');
+
+        assert.equal(commitHistory.length, 2);
     });
 });
 
