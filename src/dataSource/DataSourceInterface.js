@@ -50,6 +50,9 @@ class DataSourceInterface {
 	async getCommitHistory(uri) {
 		throw new Error("Method 'getCommitHistory()' must be implemented.");
 	}
+	async getCommitsForUser(username, page = 1, pageSize = 10) {
+		throw new Error("Method 'getCommitsForUser()' must be implemented.");
+	}
 
 	async renameFile(oldURI, newURI) {
 		throw new Error("Method 'renameFile()' must be implemented.");

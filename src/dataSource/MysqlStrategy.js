@@ -251,6 +251,36 @@ class MySQLStrategy extends DataSourceInterface {
         }
     }
 
+    async getCommitsForUser(username, page = 1, pageSize = 10) {
+        const safePage = Number(page) || 1;
+        const safePageSize = Number(pageSize) || 10;
+        const offset = (safePage - 1) * safePageSize;
+
+        const query = `
+            SELECT
+                HEX(c.hash) AS hash,
+                HEX(c.parent_hash) AS parent_hash,
+                c.author,
+                c.commit_date,
+                c.line_changes
+            FROM commits c
+            WHERE c.author = ?
+            ORDER BY c.commit_date DESC
+            LIMIT ? OFFSET ?;
+        `;
+
+        const [rows] = await this.pool.execute(query, [username, safePageSize, offset]);
+
+        if (rows.length > 0) {
+            for (let row of rows) {
+                row.line_changes = JSON.parse(row.line_changes).changes;
+            }
+            return rows;
+        } else {
+            return [];
+        }
+    }
+
     async renameFile(oldURI, newURI){
         const query = `UPDATE files SET uri = ? WHERE uri = ?`;
         await this.pool.execute(query, [newURI, oldURI]);

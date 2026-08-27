@@ -70,6 +70,24 @@ describe("Committing and fetching content", function () {
 
         assert.equal(commitHistory.length, 2);
     });
+
+    it("should paginate commit history for a user by default page size", function () {
+        this.timeout(15000);
+
+        return (async () => {
+            await wikstory.delete();
+
+            for (let i = 0; i < 5; i++) {
+                await wikstory.commit("test", `${i}-${testString}`, "noc");
+            }
+
+            const pageOne = await wikstory.getCommitsForUser("noc", 1, 3);
+            const pageTwo = await wikstory.getCommitsForUser("noc", 2, 3);
+
+            assert.equal(pageOne.length, 3, "Page one should have 3 commits.");
+            assert.equal(pageTwo.length, 2, "Page two should have 2 commits.");
+        })();
+    });
 });
 
 describe("rolling back", function () {

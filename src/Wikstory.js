@@ -214,6 +214,14 @@ class Wikstory {
         return await this.dataStrategy.getCommitHistory(uri);
     }
 
+    async getCommitsForUser(username, page = 1, pageSize = 10){
+        if (typeof(username) != "string") throw new InvalidInputError(`Username must be non-empty string.`);
+        if (!Number.isInteger(Number(page)) || Number(page) < 1) throw new errors.InvalidInputError("Page must be a positive integer.");
+        if (!Number.isInteger(Number(pageSize)) || Number(pageSize) < 1) throw new errors.InvalidInputError("Page size must be a positive integer.");
+
+        return await this.dataStrategy.getCommitsForUser(username, Number(page), Number(pageSize));
+    }
+
     async getParentCommit(hash){
         if (typeof(hash) != "string") throw new errors.InvalidInputError("Hash must be non-empty String.");
         return await this.dataStrategy.getParentCommit(hash);
