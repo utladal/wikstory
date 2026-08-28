@@ -37,7 +37,7 @@ let wikstory = null;
 describe("Instanciation of wikstory class", function () {
     it("Should create a new instance of wikstory using the test child class.", function () {
         wikstory = new SQLTestClass({
-            host: '10.0.0.2',
+            host: '127.0.0.1',
             user: 'devuser',
             password: 'devuser',
             database: 'wiki_dev',
