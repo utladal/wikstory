@@ -1,6 +1,6 @@
 {
   "name": "@utladal/wikstory",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "a git like version histoy module for wiki documents",
   "license": "MIT",
   "author": "Nocturnal",
