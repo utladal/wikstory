@@ -220,27 +220,23 @@ class MySQLStrategy extends DataSourceInterface {
         const [rows] = await this.pool.execute(query, [uri]);
 
         if (rows.length > 0){
-            // Parse line_changes for all rows
-            for(let row in rows) rows[row].line_changes = JSON.parse(rows[row].line_changes).changes;
-            
             // Collect all unique blob hashes
-            const blobHashes = [];
             const blobHashSet = new Set();
             for(let row of rows) {
-                for(let lineChange of row.line_changes) {
+                for(let lineChange of row.line_changes.changes) {
                     if (!blobHashSet.has(lineChange.hash)) {
                         blobHashSet.add(lineChange.hash);
-                        blobHashes.push(lineChange.hash);
                     }
                 }
             }
+            const blobHashes = Array.from(blobHashSet);
 
             // Fetch all blobs in batch
             const blobMap = await this.getBlobsBatch(blobHashes);
     
             // Assign line_text to each line_change
             for(let row of rows) {
-                for(let lineChange of row.line_changes) {
+                for(let lineChange of row.line_changes.changes) {
                     lineChange.line_text = blobMap[lineChange.hash].line_text;
                 }
             }
@@ -272,9 +268,6 @@ class MySQLStrategy extends DataSourceInterface {
         const [rows] = await this.pool.execute(query, [username, safePageSize, offset]);
 
         if (rows.length > 0) {
-            for (let row of rows) {
-                row.line_changes = JSON.parse(row.line_changes).changes;
-            }
             return rows;
         } else {
             return [];

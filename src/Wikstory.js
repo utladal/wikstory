@@ -132,11 +132,10 @@ class Wikstory {
         }
 
         let fileLines = fileInfo.file_text.split('\n');
-        const lineChanges = JSON.parse(fileInfo.line_changes).changes;
 
         let deletedHashes = [];
         //for adds remove based on line number
-        for (const change of lineChanges){
+        for (const change of fileInfo.line_changes.changes){
             if (change.type == 'add'){
                 //delete relevant lines from fileInfo.file_text
                 fileLines[change.line] = null;
@@ -147,7 +146,7 @@ class Wikstory {
         }
         fileLines = fileLines.filter(item => item !== null); //remove null values
         //for deletes insert values from blobs
-        for (const change of lineChanges){
+        for (const change of fileInfo.line_changes.changes){
             if (change.type == 'del'){
                 const blob = await this.dataStrategy.getBlob(change.hash);
                 fileLines.splice(change.line, 0, blob.line_text);

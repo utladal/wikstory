@@ -69,6 +69,9 @@ describe("Committing and fetching content", function () {
         const commitHistory = await wikstory.getCommitHistory('test');
 
         assert.equal(commitHistory.length, 2);
+        const firstCommit = commitHistory[0];
+        assert.equal(firstCommit.author, 'noc2');
+        assert.equal(firstCommit.line_changes.changes.length, 5);
     });
 
     it("should paginate commit history for a user by default page size", function () {
