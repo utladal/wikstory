@@ -1,13 +1,17 @@
 {
-  "name": "wikstory",
+  "name": "@utladal/wikstory",
   "version": "1.0.0",
   "description": "a git like version histoy module for wiki documents",
-  "license": "ISC",
+  "license": "MIT",
   "author": "Nocturnal",
   "type": "commonjs",
   "main": "src/WikstoryBuilder.js",
   "scripts": {
     "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/utladal/wikstory.git"
   },
   "dependencies": {
     "diff": "^7.0.0",
