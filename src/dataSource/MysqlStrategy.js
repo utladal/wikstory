@@ -289,6 +289,11 @@ class MySQLStrategy extends DataSourceInterface {
             throw new errors.ItemNotFoundError("Could not find commit with provided hash.");
         }
     }
+
+    async redactUser(username) {
+        const query = `UPDATE commits SET author = ? WHERE author = ?`;
+        await this.pool.execute(query, ["deleted_user", username]);
+    }
 }
 
 module.exports = MySQLStrategy;

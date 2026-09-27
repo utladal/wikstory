@@ -2,6 +2,7 @@ const assert = require('assert');
 const errors = require('../Errors');
 
 const SQLTestClass = require('./TestClass');
+const { arrayStartsWith } = require('diff/lib/util/array.js');
 
 let testString = `once there was a man
 two was a big fan
@@ -38,9 +39,9 @@ describe("Instanciation of wikstory class", function () {
     it("Should create a new instance of wikstory using the test child class.", function () {
         wikstory = new SQLTestClass({
             host: '127.0.0.1',
-            user: 'devuser',
-            password: 'devuser',
-            database: 'wiki_dev',
+            user: 'testuser',
+            password: 'testuser',
+            database: 'wiki_temp',
             waitForConnections: true,
             connectionLimit: 20,
             queueLimit: 0
@@ -128,6 +129,27 @@ describe("rolling back", function () {
         assert.equal(res.file_text, testString);
     });
 });
+
+describe("testing data redaction", function () {
+    before(async () => {
+        await wikstory.delete();
+    });
+
+    it("should redact all commits made by the passed user", async () => {
+        const hashone = await wikstory.commit("test", testString, "redactme");
+        const hashtwo = await wikstory.commit("test2", testString, "dontredact");
+        const hashthree = await wikstory.commit("test2", changeString, "redactme");
+        
+        await wikstory.redactUser("redactme");
+
+        assert.equal(await wikstory.blame(hashone), "deleted_user");
+        assert.equal(await wikstory.blame(hashtwo), "dontredact");
+        assert.equal(await wikstory.blame(hashthree), "deleted_user");
+
+        const forUser = await wikstory.getCommitsForUser("redactme");
+        assert(forUser.length == 0);
+    })
+})
 
 describe("testing errors", function () {
     

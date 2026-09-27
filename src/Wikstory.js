@@ -229,12 +229,17 @@ class Wikstory {
     async renameFile(oldURI, newURI){
         if (!oldURI || !newURI) throw new Error("One of the provided URIs was empty.");
 
-        this.dataStrategy.renameFile(oldURI, newURI);
+        return this.dataStrategy.renameFile(oldURI, newURI);
     }
 
     async blame(hash){
         if (typeof(hash) != "string") throw new errors.InvalidInputError("Hash must be non-empty String.");
-        this.dataStrategy.blame(hash);
+        return this.dataStrategy.blame(hash);
+    }
+
+    async redactUser(username){
+        if (typeof(username) != "string") throw new errors.InvalidInputError("Username must be non-empty String.");
+        return this.dataStrategy.redactUser(username);
     }
 }
 
