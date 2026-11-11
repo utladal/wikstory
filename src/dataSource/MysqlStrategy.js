@@ -94,7 +94,7 @@ class MySQLStrategy extends DataSourceInterface {
 
     async getFileWithCommit(uri){
         const query = `
-            SELECT f.uri, HEX(f.current_commit_hash) AS commit_hash, f.file_text, DATE_FORMAT(c.commit_date, '%d/%m/%Y') AS formatted_date, c.author, HEX(c.parent_hash) AS parent_hash, c.line_changes
+            SELECT f.uri, HEX(f.current_commit_hash) AS commit_hash, f.file_text, c.commit_date AS date, DATE_FORMAT(c.commit_date, '%d/%m/%Y') AS formatted_date, c.author, HEX(c.parent_hash) AS parent_hash, c.line_changes
             FROM files f
             JOIN commits c ON f.current_commit_hash = c.hash
             WHERE f.uri = ?`;
