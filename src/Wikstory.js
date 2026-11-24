@@ -203,8 +203,8 @@ class Wikstory {
         return await this.dataStrategy.getFileWithCommit(uri);
     }
 
-    async getRecentCommits(num){
-        return await this.dataStrategy.getRecentCommits(num);
+    async getRecentCommits(num, rich = false){
+        return await this.dataStrategy.getRecentCommits(num, rich);
     }
 
     async getCommitHistory(uri){

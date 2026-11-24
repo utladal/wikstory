@@ -178,13 +178,28 @@ class MySQLStrategy extends DataSourceInterface {
         }
     }
 
-    async getRecentCommits(num){
-        const query = `
-        SELECT f.uri
-        FROM files f
-        JOIN commits c ON f.current_commit_hash = c.hash
-        ORDER BY c.commit_date DESC
-        LIMIT ?`;
+    async getRecentCommits(num, rich){
+        let query;
+        if (rich)
+            query = `
+                SELECT f.uri,
+                    f.file_text,
+                    c.commit_date AS timestamp,
+                    DATE_FORMAT(c.commit_date, '%d/%m/%Y') AS formattedDate,
+                    c.author
+                FROM files f
+                JOIN commits c ON f.current_commit_hash = c.hash
+                ORDER BY c.commit_date DESC
+                LIMIT ?;`
+        else {
+            query = `
+                SELECT f.uri
+                FROM files f
+                JOIN commits c ON f.current_commit_hash = c.hash
+                ORDER BY c.commit_date DESC
+                LIMIT ?`;
+        }
+        
         const [rows] = await this.pool.execute(query, [num]);
 
         if (rows.length > 0){
